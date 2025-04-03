@@ -16,7 +16,7 @@ class _HomeScreenState extends State<HomeScreen> {
     if (image != null) {
       Navigator.pushNamed(
         context,
-        'results',
+        '/result',
         arguments: File(image.path),
       );
     }
