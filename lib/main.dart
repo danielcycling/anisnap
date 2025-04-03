@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'screens/home_screen.dart';
+import 'screens/result_screen.dart';
 
 void main() {
   runApp(AniSnapApp());
@@ -16,35 +18,8 @@ class AniSnapApp extends StatelessWidget {
       initialRoute: '/',
       routes: {
         '/': (context) => HomeScreen(),
-        '/results': (context) => ResultScreen(),
+        '/result': (context) => ResultScreen(),
       },
-    );
-  }
-}
-
-class HomeScreen extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: Text('AniSnap')),
-      body: Center(
-        child: ElevatedButton(
-          onPressed: () {
-            Navigator.pushNamed(context, '/results');
-          },
-          child: Text('画像を選択する'),
-        ),
-      ),
-    );
-  }
-}
-
-class ResultScreen extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: Text('検出結果')),
-      body: Center(child: Text('ここに検出結果が出る予定')),
     );
   }
 }
