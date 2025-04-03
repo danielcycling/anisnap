@@ -18,7 +18,7 @@ class _ResultScreenState extends State<ResultScreen> {
 
   Future<void> _loadModel() async {
     try {
-      _interpreter = await Interpreter.fromAsset('detect.tflite');
+      _interpreter = await Interpreter.fromAsset('assets/detect.tflite');
       print('✅ モデル読み込み成功！');
     } catch (e) {
       print('❌ モデル読み込み失敗: $e');
