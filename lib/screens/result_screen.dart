@@ -54,7 +54,12 @@ class _ResultScreenState extends State<ResultScreen> {
   @override
   void initState() {
     super.initState();
-    _loadModel();
+    _loadModel().then((_) {
+      final args = ModalRoute.of(context)!.settings.arguments;
+      if (args is File) {
+        _runInference(args);
+      }
+    });
   }
 
   Future<void> _loadModel() async {
