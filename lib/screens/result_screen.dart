@@ -69,6 +69,7 @@ class _ResultScreenState extends State<ResultScreen> {
         detections.add(_Detection(
           rect: Rect.fromLTRB(left, top, right, bottom),
           label: label,
+          score: score,
         ));
       }
     }
@@ -138,7 +139,7 @@ class _ResultScreenState extends State<ResultScreen> {
                   child: Align(
                     alignment: Alignment.topLeft,
                     child: Text(
-                      det.label, // ← ここがラベル名！
+                      '${det.label} (${det.score.toStringAsFixed(2)})', // ← ここがラベル名！
                       style: TextStyle(
                         color: Colors.white,
                         backgroundColor: Colors.red.withOpacity(0.7),
@@ -159,7 +160,12 @@ class _ResultScreenState extends State<ResultScreen> {
 class _Detection {
   final Rect rect;
   final String label;
+  final double score;
 
-  _Detection({required this.rect, required this.label});
+  _Detection({
+    required this.rect,
+    required this.label,
+    required this.score,
+  });
 }
 
