@@ -7,6 +7,8 @@ void main() {
 }
 
 class AniSnapApp extends StatelessWidget {
+  const AniSnapApp({super.key});
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
