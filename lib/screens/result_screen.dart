@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:tflite_flutter/tflite_flutter.dart';
 import 'dart:typed_data';
 import 'package:image/image.dart' as img;
+import 'package:flutter/services.dart'; // for rootBundle
 
 class ResultScreen extends StatefulWidget {
   const ResultScreen({super.key});
@@ -13,14 +14,14 @@ class ResultScreen extends StatefulWidget {
 
 class _ResultScreenState extends State<ResultScreen> {
   List<Rect> _detectedBoxes = [];
+  List<_Detection> _detections = [];
   Future<void> _runInference(File imageFile) async {
     final rawBytes = await imageFile.readAsBytes();
     final image = img.decodeImage(rawBytes)!;
 
-    final inputSize = 300; // モデルに合わせる（SSD MobileNetなら300）
+    final inputSize = 300;
     final resized = img.copyResize(image, width: inputSize, height: inputSize);
 
-    // [1][300][300][3]の4次元配列を作る
     final input = List.generate(
       1,
           (_) => List.generate(
@@ -29,17 +30,12 @@ class _ResultScreenState extends State<ResultScreen> {
           inputSize,
               (x) {
             final pixel = resized.getPixel(x, y);
-            return [
-              pixel.r,
-              pixel.g,
-              pixel.b,
-            ];
+            return [pixel.r, pixel.g, pixel.b];
           },
         ),
       ),
     );
 
-    // 出力の準備（モデルの出力仕様に合わせる）
     final outputLocations = List.generate(1, (_) => List.generate(10, (_) => List.filled(4, 0.0)));
     final outputClasses = List.generate(1, (_) => List.filled(10, 0.0));
     final outputScores = List.generate(1, (_) => List.filled(10, 0.0));
@@ -56,24 +52,30 @@ class _ResultScreenState extends State<ResultScreen> {
     print('検出数: ${numDetections[0]}');
     print('スコア一覧: ${outputScores[0]}');
 
-    final List<Rect> detectedBoxes = [];
+    final List<_Detection> detections = [];
 
     for (int i = 0; i < 10; i++) {
       final score = outputScores[0][i];
       if (score > 0.5) {
-        final box = outputLocations[0][i]; // [ymin, xmin, ymax, xmax]
+        final box = outputLocations[0][i];
         final top = box[0] * resized.height;
         final left = box[1] * resized.width;
         final bottom = box[2] * resized.height;
         final right = box[3] * resized.width;
 
-        detectedBoxes.add(Rect.fromLTRB(left, top, right, bottom));
+        final classIndex = outputClasses[0][i].toInt();
+        final label = (classIndex < _labels.length) ? _labels[classIndex] : '???';
+
+        detections.add(_Detection(
+          rect: Rect.fromLTRB(left, top, right, bottom),
+          label: label,
+        ));
       }
     }
 
-// 検出結果をセット
+
     setState(() {
-      _detectedBoxes = detectedBoxes;
+      _detections = detections;
     });
   }
   late Interpreter _interpreter;
@@ -82,6 +84,8 @@ class _ResultScreenState extends State<ResultScreen> {
   void initState() {
     super.initState();
     _loadModel().then((_) {
+      _loadLabels(); // ← ラベルも忘れずに読み込み！
+
       final args = ModalRoute.of(context)!.settings.arguments;
       if (args is File) {
         _runInference(args);
@@ -98,6 +102,19 @@ class _ResultScreenState extends State<ResultScreen> {
     }
   }
 
+  List<String> _labels = [];
+
+
+
+  Future<void> _loadLabels() async {
+    final raw = await rootBundle.loadString('assets/labelmap.txt');
+    setState(() {
+      _labels = raw.split('\n');
+    });
+  }
+
+
+
   @override
   Widget build(BuildContext context) {
     final File imageFile = ModalRoute.of(context)!.settings.arguments as File;
@@ -108,12 +125,12 @@ class _ResultScreenState extends State<ResultScreen> {
         child: Stack(
           children: [
             Image.file(imageFile),
-            ..._detectedBoxes.map((box) {
+            ..._detections.map((det) {
               return Positioned(
-                left: box.left,
-                top: box.top,
-                width: box.width,
-                height: box.height,
+                left: det.rect.left,
+                top: det.rect.top,
+                width: det.rect.width,
+                height: det.rect.height,
                 child: Container(
                   decoration: BoxDecoration(
                     border: Border.all(color: Colors.red, width: 2),
@@ -121,7 +138,7 @@ class _ResultScreenState extends State<ResultScreen> {
                   child: Align(
                     alignment: Alignment.topLeft,
                     child: Text(
-                      '検出',
+                      det.label, // ← ここがラベル名！
                       style: TextStyle(
                         color: Colors.white,
                         backgroundColor: Colors.red.withOpacity(0.7),
@@ -138,3 +155,11 @@ class _ResultScreenState extends State<ResultScreen> {
     );
   }
 }
+
+class _Detection {
+  final Rect rect;
+  final String label;
+
+  _Detection({required this.rect, required this.label});
+}
+
