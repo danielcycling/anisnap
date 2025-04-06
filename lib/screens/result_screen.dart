@@ -126,24 +126,34 @@ class _ResultScreenState extends State<ResultScreen> {
         child: Stack(
           children: [
             Image.file(imageFile),
-            ..._detections.map((det) {
+            ..._detections.asMap().entries.map((entry) {
+              final index = entry.key;
+              final det = entry.value;
+
               return Positioned(
                 left: det.rect.left,
                 top: det.rect.top,
                 width: det.rect.width,
                 height: det.rect.height,
-                child: Container(
-                  decoration: BoxDecoration(
-                    border: Border.all(color: Colors.red, width: 2),
-                  ),
-                  child: Align(
-                    alignment: Alignment.topLeft,
-                    child: Text(
-                      '${det.label} (${det.score.toStringAsFixed(2)})', // ← ここがラベル名！
-                      style: TextStyle(
-                        color: Colors.white,
-                        backgroundColor: Colors.red.withOpacity(0.7),
-                        fontSize: 12,
+                child: GestureDetector(
+                  onTap: () {
+                    _showNoteDialog(index, det); // ← タップしたらメモ入力を表示！
+                  },
+                  child: Container(
+                    decoration: BoxDecoration(
+                      border: Border.all(color: Colors.red, width: 2),
+                    ),
+                    child: Align(
+                      alignment: Alignment.topLeft,
+                      child: Text(
+                        det.freeNote != null && det.freeNote!.isNotEmpty
+                            ? '${det.label} 📝'
+                            : '${det.label} (${det.score.toStringAsFixed(2)})',
+                        style: TextStyle(
+                          color: Colors.white,
+                          backgroundColor: Colors.red.withOpacity(0.7),
+                          fontSize: 12,
+                        ),
                       ),
                     ),
                   ),
@@ -155,6 +165,82 @@ class _ResultScreenState extends State<ResultScreen> {
       ),
     );
   }
+
+  void _showNoteDialog(int index, _Detection det) {
+    final nicknameCtrl = TextEditingController(text: det.nickname);
+    final behaviorCtrl = TextEditingController(text: det.behaviorNote);
+    final locationCtrl = TextEditingController(text: det.location);
+    final freeCtrl = TextEditingController(text: det.freeNote);
+    String condition = det.condition ?? 'Healthy';
+
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
+      ),
+      builder: (context) {
+        return Padding(
+          padding: EdgeInsets.only(
+            bottom: MediaQuery.of(context).viewInsets.bottom + 16,
+            left: 16,
+            right: 16,
+            top: 24,
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text('Add a note', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+              TextField(
+                controller: nicknameCtrl,
+                decoration: InputDecoration(labelText: 'Nickname'),
+              ),
+              TextField(
+                controller: behaviorCtrl,
+                decoration: InputDecoration(labelText: 'Behavior / Notes'),
+                maxLines: null,
+              ),
+              DropdownButtonFormField<String>(
+                value: condition,
+                decoration: InputDecoration(labelText: 'Condition'),
+                items: ['Healthy', 'Thin', 'Injured']
+                    .map((c) => DropdownMenuItem(value: c, child: Text(c)))
+                    .toList(),
+                onChanged: (value) {
+                  if (value != null) condition = value;
+                },
+              ),
+              TextField(
+                controller: locationCtrl,
+                decoration: InputDecoration(labelText: 'Location'),
+              ),
+
+              TextField(
+                controller: freeCtrl,
+                decoration: InputDecoration(labelText: 'Additional Notes'),
+                maxLines: null,
+              ),
+
+              SizedBox(height: 16),
+              ElevatedButton(
+                onPressed: () {
+                  setState(() {
+                    _detections[index].nickname = nicknameCtrl.text;
+                    _detections[index].behaviorNote = behaviorCtrl.text;
+                    _detections[index].condition = condition;
+                    _detections[index].location = locationCtrl.text;
+                    _detections[index].freeNote = freeCtrl.text;
+                  });
+                  Navigator.pop(context);
+                },
+                child: Text('Save note'),
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
 }
 
 class _Detection {
@@ -162,10 +248,21 @@ class _Detection {
   final String label;
   final double score;
 
+  String? nickname;
+  String? behaviorNote;
+  String? condition;
+  String? location;
+  String? freeNote;
+
   _Detection({
     required this.rect,
     required this.label,
     required this.score,
+    this.nickname,
+    this.behaviorNote,
+    this.condition,
+    this.location,
+    this.freeNote,
   });
 }
 
