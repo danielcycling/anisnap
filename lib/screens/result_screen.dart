@@ -5,6 +5,8 @@ import 'dart:typed_data';
 import 'package:image/image.dart' as img;
 import 'package:flutter/services.dart'; // for rootBundle
 import '../models/detection.dart';
+import 'package:hive/hive.dart';
+late Box<Detection> detectionBox;
 
 class ResultScreen extends StatefulWidget {
   const ResultScreen({super.key});
@@ -90,13 +92,18 @@ class _ResultScreenState extends State<ResultScreen> {
   @override
   void initState() {
     super.initState();
-    _loadModel().then((_) {
-      _loadLabels(); // ← ラベルも忘れずに読み込み！
 
-      final args = ModalRoute.of(context)!.settings.arguments;
-      if (args is File) {
-        _runInference(args);
-      }
+    Hive.openBox<Detection>('detections').then((box) {
+      detectionBox = box; // ← 保存先Boxをセット！
+
+      _loadModel().then((_) {
+        _loadLabels();
+
+        final args = ModalRoute.of(context)!.settings.arguments;
+        if (args is File) {
+          _runInference(args);
+        }
+      });
     });
   }
 
@@ -173,6 +180,8 @@ class _ResultScreenState extends State<ResultScreen> {
   }
 
   void _showNoteDialog(int index, Detection det) {
+    detectionBox.put('detection_$index', _detections[index]);
+    print('✅ 保存完了: ${_detections[index].label}');
     final nicknameCtrl = TextEditingController(text: det.nickname);
     final behaviorCtrl = TextEditingController(text: det.behaviorNote);
     final locationCtrl = TextEditingController(text: det.location);
