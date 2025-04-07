@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'dart:io';
+import 'dart:developer';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -17,6 +18,8 @@ class _HomeScreenState extends State<HomeScreen> {
   Future<void> _pickImageFromGallery() async {
     final XFile? image = await _picker.pickImage(source: ImageSource.gallery);
 
+    if (!context.mounted) return;
+
     if (image != null) {
       Navigator.pushNamed(
         context,
@@ -28,7 +31,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
   Future<void> _pickImageFromCamera() async {
     // 📸 実機対応後に有効化予定
-    print('カメラ機能は後で実装！');
+    log('カメラ機能は後で実装！', name: 'camera');
     // final XFile? image = await _picker.pickImage(source: ImageSource.camera);
     // if (image != null) {
     //   Navigator.pushNamed(

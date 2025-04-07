@@ -44,6 +44,7 @@ class DetailsScreen extends StatelessWidget {
               );
               if (confirm == true) {
                 await detection.delete();
+                if (!context.mounted) return;
                 Navigator.pop(context); // Close detail screen
               }
             },

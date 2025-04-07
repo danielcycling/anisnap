@@ -1,7 +1,7 @@
 import 'dart:io';
+import 'dart:developer';
 import 'package:flutter/material.dart';
 import 'package:tflite_flutter/tflite_flutter.dart';
-import 'dart:typed_data';
 import 'package:image/image.dart' as img;
 import 'package:flutter/services.dart';
 import '../models/detection.dart';
@@ -18,7 +18,6 @@ class ResultScreen extends StatefulWidget {
 }
 
 class _ResultScreenState extends State<ResultScreen> {
-  List<Rect> _detectedBoxes = [];
   List<Detection> _detections = [];
   late Interpreter _interpreter;
   File? _imageFile;
@@ -34,6 +33,8 @@ class _ResultScreenState extends State<ResultScreen> {
       _loadModel().then((_) {
         _loadLabels();
 
+        if(!mounted) return;
+
         final args = ModalRoute.of(context)!.settings.arguments;
         if (args is File) {
           _imageFile = args;
@@ -46,9 +47,9 @@ class _ResultScreenState extends State<ResultScreen> {
   Future<void> _loadModel() async {
     try {
       _interpreter = await Interpreter.fromAsset('assets/detect.tflite');
-      print('✅ モデル読み込み成功！');
+      log('✅ モデル読み込み成功！', name: 'model');
     } catch (e) {
-      print('❌ モデル読み込み失敗: $e');
+      log('❌ モデル読み込み失敗: $e', name: 'model');
     }
   }
 
@@ -95,9 +96,9 @@ class _ResultScreenState extends State<ResultScreen> {
       3: numDetections,
     });
 
-    print('✅ 推論完了！');
-    print('検出数: ${numDetections[0]}');
-    print('スコア一覧: ${outputScores[0]}');
+    log('✅ 推論完了！', name: 'inference');
+    log('検出数: ${numDetections[0]}', name: 'inference');
+    log('スコア一覧: ${outputScores[0]}', name: 'inference');
 
     final List<Detection> detections = [];
     final dir = await getApplicationDocumentsDirectory();
@@ -160,7 +161,7 @@ class _ResultScreenState extends State<ResultScreen> {
       );
     }
 
-    print('🟥 デバッグ: _detections 件数 = ${_detections.length}');
+    log('🟥 デバッグ: _detections 件数 = ${_detections.length}', name: 'inference');
 
     return Scaffold(
       appBar: AppBar(title: const Text('検出結果')),
@@ -179,8 +180,8 @@ class _ResultScreenState extends State<ResultScreen> {
                     top: det.top,
                     width: det.width,
                     height: det.height,
-                    child: GestureDetector( // ←🔥追加開始
-                      behavior: HitTestBehavior.translucent, // ←これが命！
+                    child: GestureDetector(
+                      behavior: HitTestBehavior.translucent,
                       onTap: () {
                         _showNoteDialog(_detections.indexOf(det), det);
                       },

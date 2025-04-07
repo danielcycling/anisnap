@@ -4,7 +4,6 @@ import 'dart:io';
 import '../models/detection.dart';
 import 'details_screen.dart';
 import 'package:intl/intl.dart';
-import 'package:anisnap/utils/csv_exporter.dart';
 import 'package:anisnap/widgets/export_options.dart';
 
 class HistoryScreen extends StatefulWidget {
@@ -17,7 +16,7 @@ class HistoryScreen extends StatefulWidget {
 class _HistoryScreenState extends State<HistoryScreen> {
   Box<Detection>? detectionBox;
   String? selectedFolder; // 🔥 フォルダでの絞り込み用
-  Set<Detection> _selected = {};
+  final Set<Detection> _selected = {};
 
   @override
   void initState() {
