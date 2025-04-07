@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:hive/hive.dart';
 import '../models/detection.dart';
 import 'details_screen.dart';
+import 'package:intl/intl.dart';
 
 class HistoryScreen extends StatefulWidget {
   const HistoryScreen({super.key});
@@ -17,11 +18,20 @@ class _HistoryScreenState extends State<HistoryScreen> {
   @override
   void initState() {
     super.initState();
-    detectionBox = Hive.box<Detection>('detections');
+
+    (() async {
+      detectionBox = await Hive.openBox<Detection>('detections');
+      setState(() {}); // ← buildを呼び出して反映！
+    })();
   }
 
   @override
   Widget build(BuildContext context) {
+
+    if (!Hive.isBoxOpen('detections')) {
+      return const Center(child: CircularProgressIndicator());
+    }
+
     final allDetections = detectionBox.values.toList().reversed.toList();
     final detections = selectedFolder == null
         ? allDetections
@@ -57,6 +67,8 @@ class _HistoryScreenState extends State<HistoryScreen> {
         itemCount: detections.length,
         itemBuilder: (context, index) {
           final det = detections[index];
+          final formattedDate = DateFormat('yyyy-MM-dd HH:mm').format(det.savedAt);
+
           return Card(
             margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
             child: ListTile(
@@ -64,6 +76,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
               subtitle: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
+                  Text('Saved: $formattedDate'),
                   if (det.folder?.isNotEmpty == true)
                     Text('Folder: ${det.folder}'),
                   if (det.behaviorNote?.isNotEmpty == true)
