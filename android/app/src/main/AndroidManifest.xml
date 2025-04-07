@@ -1,7 +1,14 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <!-- カメラを使うなら -->
+    <uses-permission android:name="android.permission.CAMERA" />
+
+    <!-- Android 28以下の端末で画像保存が必要なら（Xiaomi Pad 6はたぶん不要だけど一応） -->
+    <uses-permission
+        android:name="android.permission.WRITE_EXTERNAL_STORAGE"
+        android:maxSdkVersion="28" />
     <application
         android:label="anisnap"
-        android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
         <activity
             android:name=".MainActivity"
