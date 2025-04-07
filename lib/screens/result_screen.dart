@@ -186,6 +186,7 @@ class _ResultScreenState extends State<ResultScreen> {
     final behaviorCtrl = TextEditingController(text: det.behaviorNote);
     final locationCtrl = TextEditingController(text: det.location);
     final freeCtrl = TextEditingController(text: det.freeNote);
+    final folderCtrl = TextEditingController(text: det.folder);
     String condition = det.condition ?? 'Healthy';
 
     showModalBottomSheet(
@@ -231,6 +232,11 @@ class _ResultScreenState extends State<ResultScreen> {
               ),
 
               TextField(
+                controller: folderCtrl,
+                decoration: InputDecoration(labelText: 'Folder'),
+              ),
+
+              TextField(
                 controller: freeCtrl,
                 decoration: InputDecoration(labelText: 'Additional Notes'),
                 maxLines: null,
@@ -245,6 +251,7 @@ class _ResultScreenState extends State<ResultScreen> {
                     _detections[index].condition = condition;
                     _detections[index].location = locationCtrl.text;
                     _detections[index].freeNote = freeCtrl.text;
+                    _detections[index].folder = folderCtrl.text;
                   });
                   Navigator.pop(context);
                 },

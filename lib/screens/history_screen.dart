@@ -11,6 +11,7 @@ class HistoryScreen extends StatefulWidget {
 
 class _HistoryScreenState extends State<HistoryScreen> {
   late Box<Detection> detectionBox;
+  String? selectedFolder; // 🔥 フォルダでの絞り込み用
 
   @override
   void initState() {
@@ -20,13 +21,38 @@ class _HistoryScreenState extends State<HistoryScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final detections = detectionBox.values.toList().reversed.toList();
+    final allDetections = detectionBox.values.toList().reversed.toList();
+    final detections = selectedFolder == null
+        ? allDetections
+        : allDetections.where((det) => det.folder == selectedFolder).toList();
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Observation History')),
+      appBar: AppBar(
+        title: const Text('Observation History'),
+        actions: [
+          PopupMenuButton<String>(
+            icon: const Icon(Icons.folder),
+            onSelected: (value) {
+              setState(() {
+                selectedFolder = value == 'All' ? null : value;
+              });
+            },
+            itemBuilder: (context) {
+              final folders = detectionBox.values
+                  .map((e) => e.folder ?? 'Uncategorized')
+                  .toSet()
+                  .toList();
+              return [
+                const PopupMenuItem(value: 'All', child: Text('All')),
+                ...folders.map((f) => PopupMenuItem(value: f, child: Text(f)))
+              ];
+            },
+          )
+        ],
+      ),
       body: detections.isEmpty
-        ? const Center(child: Text('No observations yet.'))
-        : ListView.builder(
+          ? const Center(child: Text('No observations yet.'))
+          : ListView.builder(
         itemCount: detections.length,
         itemBuilder: (context, index) {
           final det = detections[index];
@@ -37,6 +63,8 @@ class _HistoryScreenState extends State<HistoryScreen> {
               subtitle: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
+                  if (det.folder?.isNotEmpty == true)
+                    Text('Folder: ${det.folder}'),
                   if (det.behaviorNote?.isNotEmpty == true)
                     Text('Behavior: ${det.behaviorNote}'),
                   if (det.condition?.isNotEmpty == true)
@@ -44,7 +72,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
                   if (det.location?.isNotEmpty == true)
                     Text('Location: ${det.location}'),
                   if (det.freeNote?.isNotEmpty == true)
-                    Text('Additional Notes: ${det.freeNote}'),
+                    Text('Note: ${det.freeNote}'),
                 ],
               ),
             ),

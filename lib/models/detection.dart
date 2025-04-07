@@ -38,6 +38,9 @@ class Detection extends HiveObject {
   @HiveField(10)
   double height;
 
+  @HiveField(11)
+  String? folder;
+
   Detection({
     required this.label,
     required this.score,
