@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:hive/hive.dart';
+import 'dart:io';
 import '../models/detection.dart';
 import 'details_screen.dart';
 import 'package:intl/intl.dart';
+
 
 class HistoryScreen extends StatefulWidget {
   const HistoryScreen({super.key});
@@ -12,7 +14,7 @@ class HistoryScreen extends StatefulWidget {
 }
 
 class _HistoryScreenState extends State<HistoryScreen> {
-  late Box<Detection> detectionBox;
+  Box<Detection>? detectionBox;
   String? selectedFolder; // 🔥 フォルダでの絞り込み用
 
   @override
@@ -28,11 +30,13 @@ class _HistoryScreenState extends State<HistoryScreen> {
   @override
   Widget build(BuildContext context) {
 
-    if (!Hive.isBoxOpen('detections')) {
-      return const Center(child: CircularProgressIndicator());
+    if (detectionBox == null || !Hive.isBoxOpen('detections')) {
+      return const Scaffold(
+        body: Center(child: CircularProgressIndicator()),
+      );
     }
 
-    final allDetections = detectionBox.values.toList().reversed.toList();
+    final allDetections = detectionBox!.values.toList().reversed.toList();
     final detections = selectedFolder == null
         ? allDetections
         : allDetections.where((det) => det.folder == selectedFolder).toList();
@@ -49,7 +53,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
               });
             },
             itemBuilder: (context) {
-              final folders = detectionBox.values
+              final folders = detectionBox!.values
                   .map((e) => e.folder ?? 'Uncategorized')
                   .toSet()
                   .toList();
@@ -72,7 +76,18 @@ class _HistoryScreenState extends State<HistoryScreen> {
           return Card(
             margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
             child: ListTile(
-              title: Text(det.nickname?.isNotEmpty == true ? det.nickname! : det.label),
+              leading: det.thumbnailPath != null
+                  ? Image.file(
+                File(det.thumbnailPath!),
+                width: 80,
+                height: 80,
+                fit: BoxFit.cover,
+              )
+                  : const Icon(Icons.image_not_supported, size: 48),
+              title: Text(
+                det.nickname?.isNotEmpty == true ? det.nickname! : det.label,
+                style: const TextStyle(fontWeight: FontWeight.bold),
+              ),
               subtitle: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -89,6 +104,8 @@ class _HistoryScreenState extends State<HistoryScreen> {
                     Text('Note: ${det.freeNote}'),
                 ],
               ),
+              isThreeLine: true,
+              contentPadding: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
               onTap: () {
                 Navigator.push(
                   context,

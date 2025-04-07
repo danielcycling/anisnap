@@ -46,6 +46,12 @@ class Detection extends HiveObject {
   @HiveField(12)
   DateTime savedAt;
 
+  @HiveField(13)
+  String? thumbnailPath;
+
+  @HiveField(14)
+  String? fullImagePath;
+
   Detection({
     required this.label,
     required this.score,
@@ -60,5 +66,7 @@ class Detection extends HiveObject {
     required this.height,
     this.folder,
     required this.savedAt,
+    this.thumbnailPath,
+    this.fullImagePath,
   });
 }
