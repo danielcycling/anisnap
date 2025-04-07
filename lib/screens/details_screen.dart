@@ -1,3 +1,4 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
 import '../models/detection.dart';
 import 'package:hive/hive.dart';
@@ -53,6 +54,12 @@ class DetailsScreen extends StatelessWidget {
         padding: const EdgeInsets.all(16.0),
         child: ListView(
           children: [
+            if (detection.fullImagePath != null)
+              Image.file(
+                File(detection.fullImagePath!),
+                height: 250,
+                fit: BoxFit.contain,
+              ),
             Text(
               detection.nickname?.isNotEmpty == true ? detection.nickname! : detection.label,
               style: Theme.of(context).textTheme.headlineMedium,
