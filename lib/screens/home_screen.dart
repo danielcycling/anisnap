@@ -12,7 +12,9 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
   final ImagePicker _picker = ImagePicker();
 
-  Future<void> _pickImage() async {
+
+
+  Future<void> _pickImageFromGallery() async {
     final XFile? image = await _picker.pickImage(source: ImageSource.gallery);
 
     if (image != null) {
@@ -22,6 +24,19 @@ class _HomeScreenState extends State<HomeScreen> {
         arguments: File(image.path),
       );
     }
+  }
+
+  Future<void> _pickImageFromCamera() async {
+    // 📸 実機対応後に有効化予定
+    print('カメラ機能は後で実装！');
+    // final XFile? image = await _picker.pickImage(source: ImageSource.camera);
+    // if (image != null) {
+    //   Navigator.pushNamed(
+    //     context,
+    //     '/result',
+    //     arguments: File(image.path),
+    //   );
+    // }
   }
 
   @override
@@ -43,8 +58,12 @@ class _HomeScreenState extends State<HomeScreen> {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             ElevatedButton(
-              onPressed: _pickImage,
+              onPressed: _pickImageFromGallery,
               child: const Text('画像を選択する'),
+            ),
+            ElevatedButton(
+              onPressed: _pickImageFromCamera,
+              child: const Text('カメラで撮影する'),
             ),
             const SizedBox(height: 16),
             ElevatedButton(
