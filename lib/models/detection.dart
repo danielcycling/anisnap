@@ -25,7 +25,7 @@ class Detection extends HiveObject {
   @HiveField(6)
   String? freeNote;
 
-  // ✅ 🆕 座標情報を追加（Rectの代わり）
+  // ✅ 座標情報
   @HiveField(7)
   double left;
 
@@ -38,8 +38,13 @@ class Detection extends HiveObject {
   @HiveField(10)
   double height;
 
+  // ✅ フォルダ名
   @HiveField(11)
   String? folder;
+
+  // ✅ 保存日時
+  @HiveField(12)
+  DateTime savedAt;
 
   Detection({
     required this.label,
@@ -53,5 +58,7 @@ class Detection extends HiveObject {
     required this.top,
     required this.width,
     required this.height,
+    this.folder,
+    required this.savedAt,
   });
 }

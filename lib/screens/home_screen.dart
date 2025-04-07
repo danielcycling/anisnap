@@ -27,11 +27,33 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text('AniSnap')),
+      appBar: AppBar(
+        title: const Text('AniSnap'),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.history),
+            onPressed: () {
+              Navigator.pushNamed(context, '/history');
+            },
+          ),
+        ],
+      ),
       body: Center(
-        child: ElevatedButton(
-          onPressed: _pickImage,
-          child: Text('画像を選択する'),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            ElevatedButton(
+              onPressed: _pickImage,
+              child: const Text('画像を選択する'),
+            ),
+            const SizedBox(height: 16),
+            ElevatedButton(
+              onPressed: () {
+                Navigator.pushNamed(context, '/history');
+              },
+              child: const Text('観察履歴を見る'),
+            ),
+          ],
         ),
       ),
     );

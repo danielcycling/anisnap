@@ -6,7 +6,7 @@ import 'package:image/image.dart' as img;
 import 'package:flutter/services.dart'; // for rootBundle
 import '../models/detection.dart';
 import 'package:hive/hive.dart';
-late Box<Detection> detectionBox;
+
 
 class ResultScreen extends StatefulWidget {
   const ResultScreen({super.key});
@@ -16,6 +16,7 @@ class ResultScreen extends StatefulWidget {
 }
 
 class _ResultScreenState extends State<ResultScreen> {
+  late Box<Detection> detectionBox;
   List<Rect> _detectedBoxes = [];
   List<Detection> _detections = [];
   Future<void> _runInference(File imageFile) async {
@@ -78,6 +79,7 @@ class _ResultScreenState extends State<ResultScreen> {
           top: top,
           width: width,
           height: height,
+          savedAt: DateTime.now(),
         ));
       }
     }
@@ -93,18 +95,22 @@ class _ResultScreenState extends State<ResultScreen> {
   void initState() {
     super.initState();
 
-    Hive.openBox<Detection>('detections').then((box) {
-      detectionBox = box; // ← 保存先Boxをセット！
+    (() async {
+      try {
+        detectionBox = await Hive.openBox<Detection>('detections');
+      } catch (e) {
+        await Hive.deleteBoxFromDisk('detections');
+        detectionBox = await Hive.openBox<Detection>('detections');
+      }
 
       _loadModel().then((_) {
         _loadLabels();
-
         final args = ModalRoute.of(context)!.settings.arguments;
         if (args is File) {
           _runInference(args);
         }
       });
-    });
+    })(); // ← 無名async関数を即実行！
   }
 
   Future<void> _loadModel() async {

@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'screens/home_screen.dart';
 import 'screens/result_screen.dart';
 import 'screens/history_screen.dart';
-import 'screens/details_screen.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:path_provider/path_provider.dart';
 import 'models/detection.dart';
@@ -14,6 +13,8 @@ void main() async{
   await Hive.initFlutter(appDocumentDir.path);
 
   Hive.registerAdapter(DetectionAdapter());
+
+  //await Hive.deleteBoxFromDisk('detections');
 
   runApp(const AniSnapApp());
 }
