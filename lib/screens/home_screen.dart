@@ -18,7 +18,7 @@ class _HomeScreenState extends State<HomeScreen> {
   Future<void> _pickImageFromGallery() async {
     final XFile? image = await _picker.pickImage(source: ImageSource.gallery);
 
-    if (!context.mounted) return;
+    if (!mounted) return;
 
     if (image != null) {
       Navigator.pushNamed(

@@ -195,7 +195,7 @@ class _ResultScreenState extends State<ResultScreen> {
                             '${det.label} (${det.score.toStringAsFixed(2)})',
                             style: TextStyle(
                               color: Colors.white,
-                              backgroundColor: Colors.red.withOpacity(0.7),
+                              backgroundColor: Colors.red.withAlpha(178),
                               fontSize: 12,
                             ),
                           ),
@@ -203,7 +203,7 @@ class _ResultScreenState extends State<ResultScreen> {
                       ),
                     ),
                   );
-                }).toList(),
+                }),
               ],
             ),
           ),

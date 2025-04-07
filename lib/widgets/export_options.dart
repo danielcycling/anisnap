@@ -3,7 +3,6 @@ import 'package:anisnap/models/detection.dart';
 import 'package:anisnap/utils/csv_exporter.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:share_plus/share_plus.dart';
-import 'package:cross_file/cross_file.dart';
 
 class ExportOptions extends StatelessWidget {
   final List<Detection> selectedDetections;
