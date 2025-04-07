@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:hive/hive.dart';
 import '../models/detection.dart';
+import '../screens/details_screen.dart';
 
 class HistoryScreen extends StatefulWidget {
   const HistoryScreen({super.key});
@@ -75,6 +76,14 @@ class _HistoryScreenState extends State<HistoryScreen> {
                     Text('Note: ${det.freeNote}'),
                 ],
               ),
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => DetailsScreen(detection: det),
+                  ),
+                );
+              },
             ),
           );
         },
