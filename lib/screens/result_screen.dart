@@ -260,7 +260,8 @@ class _ResultScreenState extends State<ResultScreen> {
                     _detections[index].freeNote = freeCtrl.text;
                     _detections[index].folder = folderCtrl.text;
                   });
-                  detectionBox.put('detection_$index', _detections[index]);
+                  final uniqueKey = 'detection_${DateTime.now().millisecondsSinceEpoch}';
+                  detectionBox.put(uniqueKey, _detections[index]);
                   Navigator.pop(context);
                 },
                 child: const Text('Save note'),

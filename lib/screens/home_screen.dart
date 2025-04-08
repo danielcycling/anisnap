@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'dart:io';
-import 'dart:developer';
+import 'package:permission_handler/permission_handler.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -30,16 +30,27 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Future<void> _pickImageFromCamera() async {
-    // 📸 実機対応後に有効化予定
-    log('カメラ機能は後で実装！', name: 'camera');
-    // final XFile? image = await _picker.pickImage(source: ImageSource.camera);
-    // if (image != null) {
-    //   Navigator.pushNamed(
-    //     context,
-    //     '/result',
-    //     arguments: File(image.path),
-    //   );
-    // }
+    final status = await Permission.camera.request();
+
+    if (!status.isGranted) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('カメラの権限が必要です')),
+      );
+      return;
+    }
+
+    final XFile? image = await _picker.pickImage(source: ImageSource.camera);
+
+    if (!mounted) return;
+
+    if (image != null) {
+      Navigator.pushNamed(
+        context,
+        '/result',
+        arguments: File(image.path),
+      );
+    }
   }
 
   @override
